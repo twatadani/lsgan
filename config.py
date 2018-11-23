@@ -8,8 +8,8 @@
 import numpy as np
 
 # このセッションのデスクリプション
-DESC = 'LSGAN-ver1'
-DESC += '-07-lungHRCT-latent1024-usenormaldistribution'
+DESC = 'LSGAN-ver2'
+DESC += '-02-lungHRCT-latent256-nobias-lowlr'
 
 # 結果格納用ディレクトリ
 RESULTDIR = './results/'
@@ -45,20 +45,18 @@ MINIBATCHSIZE = 10
 MAXEPOCH = 10000
 
 # latent vectorの次元数
-LATENT_VECTOR_SIZE = 1024
+LATENT_VECTOR_SIZE = 256
 
 # 学習が偏ったときにGとDの片方だけを集中学習するかどうか 基本はFalse
 USE_INTENSIVE_TRAINING = False
 
 # 学習率
-D_LEARNING_RATE = 0.0002
-G_LEARNING_RATE = 0.0002
+D_LEARNING_RATE = 0.00005
+G_LEARNING_RATE = 0.00005
 BETA_1 = 0.5
 
-# キューの設定 (通常は変更不要)
-QUEUEMAX = 150
-QUEUEBUFSIZE = 50
-QUEUEBATCHSIZE = 20
+# ネットワーク(conv/t_conv)にバイアス項を使用するかどうか
+USE_BIAS = False
 
 # スレッドのスリープ間隔 (通常は変更不要)
 SLEEP_INTERVAL = 0.8

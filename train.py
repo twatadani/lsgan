@@ -121,6 +121,9 @@ class Trainer:
 
                 finished = False
 
+                self.session.run([tf.global_variables_initializer(),
+                                  tf.local_variables_initializer()])
+
                 # 最新チェックポイントを読み込み、再開するかどうか決定する
                 last_checkpoint = tf.train.latest_checkpoint(self.chkpdir)
                 if (last_checkpoint is not None) and cf.RESTART_TRAINING == True:
@@ -131,10 +134,6 @@ class Trainer:
                         traceback.print_exc()
                         logger.info('チェックポイントの復元に失敗しました')
                         finished = True
-
-                self.session.run([tf.global_variables_initializer(),
-                                  tf.local_variables_initializer()])
-
 
                 while not finished:
                     
