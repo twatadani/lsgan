@@ -73,5 +73,3 @@ def record_parse(example):
     imgbytes = features['img']
     parsed = tf.io.decode_raw(imgbytes, out_type=tf.float32)
     return parsed
-
-    

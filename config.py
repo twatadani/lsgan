@@ -8,8 +8,8 @@
 import numpy as np
 
 # このセッションのデスクリプション
-DESC = 'LSGAN-ver0'
-DESC += '-01-lungHRCT-threadingtest'
+DESC = 'LSGAN-ver1'
+DESC += '-07-lungHRCT-latent1024-usenormaldistribution'
 
 # 結果格納用ディレクトリ
 RESULTDIR = './results/'
@@ -45,7 +45,7 @@ MINIBATCHSIZE = 10
 MAXEPOCH = 10000
 
 # latent vectorの次元数
-LATENT_VECTOR_SIZE = 128
+LATENT_VECTOR_SIZE = 1024
 
 # 学習が偏ったときにGとDの片方だけを集中学習するかどうか 基本はFalse
 USE_INTENSIVE_TRAINING = False

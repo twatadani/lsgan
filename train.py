@@ -84,7 +84,7 @@ class Trainer:
             for i in range(6):
                 if cf.MINIBATCHSIZE >= i:
                     img_np = output_batch[i].reshape((cf.PIXELSIZE, cf.PIXELSIZE))
-                    img_uint8np = np.uint8(img_np)
+                    img_uint8np = np.uint8(np.clip(img_np, 0.0, 255.0))
                     img_img = Image.fromarray(img_uint8np, mode='L')
 
                     sampleimg.paste(img_img, box=(cf.PIXELSIZE * (i % 3), cf.PIXELSIZE * (i // 3)))
@@ -108,8 +108,8 @@ class Trainer:
         try:
             merged = tf.summary.merge_all()
 
-            logger.info('G optimizer variables: ' + str(self.G.optimizer.variables()))
-            logger.info('D optimizer variables: ' + str(self.D.optimizer.variables()))
+            #logger.info('G optimizer variables: ' + str(self.G.optimizer.variables()))
+            #logger.info('D optimizer variables: ' + str(self.D.optimizer.variables()))
 
             with tf.Session() as self.session:
 
@@ -121,10 +121,6 @@ class Trainer:
 
                 finished = False
 
-                self.session.run([tf.global_variables_initializer(),
-                                  tf.local_variables_initializer()])
-
-
                 # 最新チェックポイントを読み込み、再開するかどうか決定する
                 last_checkpoint = tf.train.latest_checkpoint(self.chkpdir)
                 if (last_checkpoint is not None) and cf.RESTART_TRAINING == True:
@@ -135,6 +131,10 @@ class Trainer:
                         traceback.print_exc()
                         logger.info('チェックポイントの復元に失敗しました')
                         finished = True
+
+                self.session.run([tf.global_variables_initializer(),
+                                  tf.local_variables_initializer()])
+
 
                 while not finished:
                     

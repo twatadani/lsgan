@@ -48,11 +48,11 @@ class Discriminator:
 
             c1 = 'D_conv1'
             conv1 = f.apply_dobn(tf.layers.conv2d(inputs = inreshaped,
-                                                  filters = 1,
+                                                  filters = 64,
                                                   kernel_size = (4, 4),
                                                   strides = (2, 2),
                                                   padding = 'same',
-                                                  kernel_initializer = tf.keras.initializers.he_uniform(),
+                                                  kernel_initializer = tf.keras.initializers.he_normal(),
                                                   activation = tf.nn.leaky_relu,
                                                   name = c1),
                                  c1)
@@ -60,11 +60,11 @@ class Discriminator:
 
             c2 = 'D_conv2'
             conv2 = f.apply_dobn(tf.layers.conv2d(inputs = conv1,
-                                                  filters = 64,
+                                                  filters = 128,
                                                   kernel_size = (4, 4),
                                                   strides = (2, 2),
                                                   padding = 'same',
-                                                  kernel_initializer = tf.keras.initializers.he_uniform(),
+                                                  kernel_initializer = tf.keras.initializers.he_normal(),
                                                   activation = tf.nn.leaky_relu,
                                                   name = c2),
                                  c2)
@@ -72,11 +72,11 @@ class Discriminator:
 
             c3 = 'D_conv3'
             conv3 = f.apply_dobn(tf.layers.conv2d(inputs = conv2,
-                                                  filters = 128,
+                                                  filters = 256,
                                                   kernel_size = (4, 4),
                                                   strides = (2, 2),
                                                   padding = 'same',
-                                                  kernel_initializer = tf.keras.initializers.he_uniform(),
+                                                  kernel_initializer = tf.keras.initializers.he_normal(),
                                                   activation = tf.nn.leaky_relu,
                                                   name = c3),
                                  c3)
@@ -84,11 +84,11 @@ class Discriminator:
 
             c4 = 'D_conv4'
             conv4 = f.apply_dobn(tf.layers.conv2d(inputs = conv3,
-                                                  filters = 256,
+                                                  filters = 512,
                                                   kernel_size = (4, 4),
                                                   strides = (2, 2),
                                                   padding = 'same',
-                                                  kernel_initializer = tf.keras.initializers.he_uniform(),
+                                                  kernel_initializer = tf.keras.initializers.he_normal(),
                                                   activation = tf.nn.leaky_relu,
                                                   name = c4),
                                  c4)
@@ -101,7 +101,7 @@ class Discriminator:
             fc = 'D_fully_connected'
             fully_connected = f.apply_dobn(tf.layers.dense(inputs = flatten,
                                                            units = 1,
-                                                           kernel_initializer = tf.keras.initializers.he_uniform(),
+                                                           kernel_initializer = tf.keras.initializers.he_normal(),
                                                            activation = tf.nn.sigmoid,
                                                            name = fc),
                                            fc)
@@ -116,27 +116,53 @@ class Discriminator:
             self.from_dataset = f.obtain_minibatch_op()
             print(str(self.from_dataset))
         
-            zeros = tf.random_normal(shape=(cf.MINIBATCHSIZE, 1),
-                                     mean=0.015,
-                                     stddev=0.015,
-                                     dtype=tf.float32,
-                                     name='D_zeros')
+            #zerosrandom = tf.random_normal(shape=(cf.MINIBATCHSIZE, 1),
+            #                         mean=0.015,
+            #                         stddev=0.015,
+            #                         dtype=tf.float32,
+            #                         name='D_zeros')
 
-            onesrandom = tf.random_normal(shape=(cf.MINIBATCHSIZE, 1),
-                                          mean = 0.985,
-                                          stddev = 0.015,
-                                          dtype = tf.float32,
-                                          name='onesrandom')
+            #onesrandom = tf.random_normal(shape=(cf.MINIBATCHSIZE, 1),
+            #                              mean = 0.985,
+            #                              stddev = 0.015,
+            #                              dtype = tf.float32,
+            #                              name='onesrandom')
+
+            #half = tf.constant(0.5,
+            #                   dtype = tf.float32,
+            #                   shape = (cf.MINIBATCHSIZE, 1),
+            #                   name = 'half')
+
+
+
+            #(shape = (cf.MINIBATCHSIZE, 1),
+            #               dtype = tf.float32,
+            #               name = 'ones')
+
+            #twos = tf.constant(2.0,
+            #                   dtype = tf.float32,
+            #                   shape = (cf.MINIBATCHSIZE, 1),
+            #                   name = 'twos')
 
             self.p_fake = self.define_forward(self.from_generator, vreuse=tf.AUTO_REUSE)
             self.p_real = self.define_forward(self.from_dataset, vreuse=tf.AUTO_REUSE)
 
+            ones = tf.ones_like(self.p_real)
 
-            G_crossentropy = tf.nn.sigmoid_cross_entropy_with_logits(labels=zeros, logits=self.p_fake)
-            D_crossentropy = tf.nn.sigmoid_cross_entropy_with_logits(labels=onesrandom, logits=self.p_real)
+            self.loss = tf.reduce_mean(tf.add(
+                tf.nn.l2_loss(tf.subtract(self.p_real, ones)),
+                tf.nn.l2_loss(self.p_fake)))
 
+            #self.loss = tf.reduce_mean(
+            #    tf.add(tf.multiply(tf.pow(tf.subtract(self.p_real, ones), twos), half),
+            #           tf.multiply(tf.pow(self.p_fake, twos), half)))
+            
 
-            self.loss = tf.reduce_mean(tf.add(D_crossentropy, G_crossentropy), name='D_loss')
+            #G_crossentropy = tf.nn.sigmoid_cross_entropy_with_logits(labels=zeros, logits=self.p_fake)
+            #D_crossentropy = tf.nn.sigmoid_cross_entropy_with_logits(labels=onesrandom, logits=self.p_real)
+
+            
+            #self.loss = tf.reduce_mean(tf.add(D_crossentropy, G_crossentropy), name='D_loss')
 
             tf.summary.scalar(name = 'Discriminator loss', tensor = self.loss)
             D_vars = [x for x in tf.trainable_variables() if 'D_' in x.name]
